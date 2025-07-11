@@ -30,21 +30,31 @@ function CoinflowPurchaseWrapper(_args: {
   onSuccess: () => void;
   subtotal: {cents: number;};
 }) {
-  // TODO your implementation goes here
-  return (
-    <div className={"h-full flex-1 w-full relative pb-20"}>
-      <div
-        className={"absolute w-full min-h-96 flex items-center justify-center"}
-      >
-        <LoadingSpinner className={"!text-gray-900/20 !fill-gray-900"} />
-      </div>
-      <div
-        className={
-          "flex-col h-full flex mx-auto relative overflow-hidden rounded-none md:rounded-xl md:border border-black/5"
-        }
-      >
+  // State to store the dynamic height of the Coinflow iframe
+  const [height, setHeight] = useState<number>(0);
 
-      </div>
+  const handleHeight = useCallback((newHeight: string) => {
+    const exactHeight = Number(newHeight);
+    if(!isNaN(exactHeight)) {
+      setHeight(exactHeight);
+    } else {
+      console.warn("invalid height value", newHeight);
+    }
+  }, []);
+  return (
+    <div style={{ height: `${height}px` }} className={"h-full flex-1 w-full relative pb-20"}>
+      <CoinflowPurchase
+        wallet={wallet}
+        merchantId={"swe-challenge"} // Merchant ID as specified in README
+        env={"sandbox"} // Environment as specified in README
+        connection={connection}
+        onSuccess={onSuccess}
+        blockchain={"solana"}
+        subtotal={subtotal}
+        loaderBackground={"#FFFFFF"}
+        handleHeightChange={handleHeight}
+        chargebackProtectionData={[]} 
+      />
     </div>
   );
 }
