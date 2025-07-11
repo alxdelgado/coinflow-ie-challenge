@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { NftSuccessModal } from "./modals/NftSuccessModal";
 import { useWallet } from "./wallet/Wallet.tsx";
 import { LoadingSpinner } from "./App.tsx";
+
+import { CoinflowPurchase, SolanaWallet } from '@coinflowlabs/react'; // Import SolanaWallet type
+import { Connection } from '@solana/web3.js';
 
 export function CoinflowForm() {
   const { wallet, connection } = useWallet();
@@ -19,6 +22,8 @@ export function CoinflowForm() {
       <CoinflowPurchaseWrapper
         onSuccess={() => setNftSuccessOpen(true)}
         subtotal={{cents: 20_00}}
+        wallet={wallet}
+        connection={connection}
       />
       <NftSuccessModal isOpen={nftSuccessOpen} setIsOpen={setNftSuccessOpen} />
     </div>
@@ -26,9 +31,16 @@ export function CoinflowForm() {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function CoinflowPurchaseWrapper(_args: {
+function CoinflowPurchaseWrapper({
+  onSuccess,
+  subtotal,
+  wallet,
+  connection,
+}: {
   onSuccess: () => void;
   subtotal: {cents: number;};
+  wallet: SolanaWallet; 
+  connection: Connection;
 }) {
   // State to store the dynamic height of the Coinflow iframe
   const [height, setHeight] = useState<number>(0);
@@ -45,8 +57,8 @@ function CoinflowPurchaseWrapper(_args: {
     <div style={{ height: `${height}px` }} className={"h-full flex-1 w-full relative pb-20"}>
       <CoinflowPurchase
         wallet={wallet}
-        merchantId={"swe-challenge"} // Merchant ID as specified in README
-        env={"sandbox"} // Environment as specified in README
+        merchantId={"swe-challenge"}
+        env={"sandbox"}
         connection={connection}
         onSuccess={onSuccess}
         blockchain={"solana"}
